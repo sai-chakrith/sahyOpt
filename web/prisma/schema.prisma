@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Species {
+  id           Int        @id @default(autoincrement())
+  name         String     @unique
+  iucnCategory String?    @map("iucn_category")
+  weight       Float      @default(1.0)
+  coverages    Coverage[]
+
+  @@map("species")
+}
+
+model GridCell {
+  id          String     @id
+  cellLat     Float      @map("cell_lat")
+  cellLon     Float      @map("cell_lon")
+  centroidLat Float      @map("centroid_lat")
+  centroidLon Float      @map("centroid_lon")
+  coverages   Coverage[]
+
+  @@map("grid_cells")
+}
+
+model Coverage {
+  id        Int      @id @default(autoincrement())
+  cellId    String   @map("cell_id")
+  speciesId Int      @map("species_id")
+  present   Boolean  @default(true)
+  cell      GridCell @relation(fields: [cellId], references: [id])
+  species   Species  @relation(fields: [speciesId], references: [id])
+
+  @@unique([cellId, speciesId])
+  @@index([cellId])
+  @@index([speciesId])
+  @@map("coverage")
+}
+
+model OptimizationRun {
+  id              Int      @id @default(autoincrement())
+  modelType       String   @map("model_type")
+  budget          Int?
+  weighted        Boolean  @default(false)
+  selectedCells   String   @map("selected_cells")  // JSON array
+  coveredSpecies  String   @map("covered_species")  // JSON array
+  coveragePercent Float    @map("coverage_percent")
+  totalSelected   Int      @map("total_selected")
+  solveTimeMs     Int      @map("solve_time_ms")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([modelType, budget, weighted])
+  @@map("optimization_runs")
+}
