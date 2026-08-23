@@ -34,7 +34,7 @@ export default function Dashboard() {
               species: status.speciesCount,
               cells: status.cellCount,
               records: status.recordCount,
-              minReserves: 57,
+              minReserves: status.minReserves || 57, // Dynamic set-covering minimum from status API
             },
             richness: (stats.richness || []).slice(0, 15).map((r: any) => ({
               cell: r.cellId?.substring(0, 10) || r.cellId,

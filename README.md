@@ -142,11 +142,15 @@ Open `http://localhost:3000` in your browser.
    - Exactly **57 grid cells** are required to achieve 100% representation (covering all 220 amphibian species at least once).
 
 2. **Coverage vs. Budget Curve (MCLP)**:
-   - Budget = 10 cells $\rightarrow$ 37.7% species coverage (83 species)
-   - Budget = 20 cells $\rightarrow$ 63.2% species coverage (139 species)
-   - Budget = 40 cells $\rightarrow$ 91.8% species coverage (202 species)
+   - Budget = 1 cell $\rightarrow$ 19.1% species coverage (42 species)
+   - Budget = 10 cells $\rightarrow$ 65.9% species coverage (145 species)
+   - Budget = 20 cells $\rightarrow$ 80.0% species coverage (176 species)
+   - Budget = 40 cells $\rightarrow$ 92.3% species coverage (203 species)
+   - Budget = 55 cells $\rightarrow$ 99.1% species coverage (218 species)
    - Budget = 57 cells $\rightarrow$ 100.0% species coverage (220 species)
 
 3. **Equal-Weighted vs. IUCN-Weighted Tradeoff**:
-   - At a budget of 20 reserves, incorporating IUCN Red List weights ($w_j$) changes **14 out of 20 selected cells (70% network spatial shift)**.
-   - The weighted model prioritizes critical habitats for endangered endemics such as *Nasikabatrachus sahyadrensis* (Purple Frog) and *Raorchestes resplendens* (Resplendent Bush Frog) over widespread species.
+   - At a budget of 20 reserves, incorporating IUCN Red List weights ($w_j$) changes **7 out of 20 selected cells (35.0% network spatial shift)**.
+   - **Equal-weighted model**: achieves 80.0% coverage (176 species).
+   - **IUCN-weighted model**: achieves 78.2% coverage (172 species).
+   - The weighted model trades a small amount of raw coverage for prioritizing threatened species, ensuring critical habitats are prioritized for endangered endemics such as *Nasikabatrachus sahyadrensis* (Purple Frog) and *Raorchestes resplendens* (Resplendent Bush Frog) over widespread species.
