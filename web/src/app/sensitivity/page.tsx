@@ -1,17 +1,17 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CoverageChart from '@/components/CoverageChart';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function SensitivityPage() {
-  const [data] = useState([
-    { threshold: 1, minReserves: 57, species: 220 },
-    { threshold: 2, minReserves: 52, species: 162 },
-    { threshold: 3, minReserves: 48, species: 131 },
-    { threshold: 5, minReserves: 38, species: 97 }
+  const [data, setData] = useState([
+    { threshold: 1, minReserves: 57, speciesCount: 220, species: 220 },
+    { threshold: 2, minReserves: 52, speciesCount: 162, species: 162 },
+    { threshold: 3, minReserves: 48, speciesCount: 131, species: 131 },
+    { threshold: 5, minReserves: 38, speciesCount: 97, species: 97 }
   ]);
 
-  const [coverageData] = useState([
+  const [coverageData, setCoverageData] = useState([
     { budget: 10, equal: 40, iucn: 45 },
     { budget: 20, equal: 65, iucn: 72 },
     { budget: 30, equal: 80, iucn: 88 },
@@ -19,6 +19,63 @@ export default function SensitivityPage() {
     { budget: 50, equal: 98, iucn: 99 },
     { budget: 60, equal: 100, iucn: 100 },
   ]);
+
+  useEffect(() => {
+    async function loadSensitivity() {
+      try {
+        const res = await fetch('/api/sensitivity');
+        if (res.ok) {
+          const sensResults = await res.json();
+          if (Array.isArray(sensResults) && sensResults.length > 0 && !sensResults[0].error) {
+            setData(sensResults.map((r: any) => ({
+              threshold: r.threshold,
+              minReserves: r.minReserves,
+              speciesCount: r.speciesCount,
+              species: r.speciesCount,
+            })));
+          }
+        }
+      } catch {
+        /* solver optional */
+      }
+    }
+
+    async function loadCurves() {
+      try {
+        const [eqRes, iucnRes] = await Promise.all([
+          fetch('/api/coverage-curve?weighted=false&max_budget=60'),
+          fetch('/api/coverage-curve?weighted=true&max_budget=60'),
+        ]);
+
+        if (eqRes.ok && iucnRes.ok) {
+          const eqData = await eqRes.json();
+          const iucnData = await iucnRes.json();
+
+          const combined: Record<number, { budget: number; equal: number; iucn: number }> = {};
+          eqData.forEach((d: any) => {
+            combined[d.budget] = { budget: d.budget, equal: d.coveragePercent, iucn: d.coveragePercent };
+          });
+          iucnData.forEach((d: any) => {
+            if (combined[d.budget]) {
+              combined[d.budget].iucn = d.coveragePercent;
+            } else {
+              combined[d.budget] = { budget: d.budget, equal: d.coveragePercent, iucn: d.coveragePercent };
+            }
+          });
+
+          const points = Object.values(combined).sort((a, b) => a.budget - b.budget);
+          if (points.length > 0) {
+            setCoverageData(points);
+          }
+        }
+      } catch {
+        /* solver optional */
+      }
+    }
+
+    loadSensitivity();
+    loadCurves();
+  }, []);
 
   return (
     <div className="page-transition">
@@ -69,7 +126,7 @@ export default function SensitivityPage() {
         </div>
         <div className="glass-card" style={{ borderLeft: '4px solid var(--accent-blue)' }}>
           <h4 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>Robustness</h4>
-          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>IUCN weighting achieves 95% priority coverage at 40 reserves vs 92% equal weighting.</p>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>IUCN weighting achieves higher priority species coverage at lower reserve budgets.</p>
         </div>
       </div>
     </div>

@@ -16,10 +16,7 @@ interface MapViewProps {
   selectedCellIds?: string[];
 }
 
-export default function MapView({ cells, selectedCellIds = [] }: MapViewProps) {
-  // Generate realistic grid cells covering Western Ghats if none provided
-  const displayCells: CellData[] = cells || generateMockCells();
-
+export default function MapView({ cells = [], selectedCellIds = [] }: MapViewProps) {
   const selectedSet = new Set(selectedCellIds);
 
   return (
@@ -29,7 +26,7 @@ export default function MapView({ cells, selectedCellIds = [] }: MapViewProps) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> | CartoDB'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
-        {displayCells.map((cell) => {
+        {cells.map((cell) => {
           const isSelected = selectedSet.size > 0 ? selectedSet.has(cell.id) : cell.selected;
           return (
             <Rectangle
@@ -61,34 +58,4 @@ export default function MapView({ cells, selectedCellIds = [] }: MapViewProps) {
       </MapContainer>
     </div>
   );
-}
-
-function generateMockCells(): CellData[] {
-  // Generate cells roughly matching Western Ghats geography
-  const cells: CellData[] = [];
-  const ghatsPath = [
-    { lat: 8.5, lon: 77.0 }, { lat: 9.0, lon: 76.8 }, { lat: 9.5, lon: 76.5 },
-    { lat: 10.0, lon: 76.2 }, { lat: 10.5, lon: 76.0 }, { lat: 11.0, lon: 75.8 },
-    { lat: 11.5, lon: 75.7 }, { lat: 12.0, lon: 75.5 }, { lat: 12.5, lon: 75.3 },
-    { lat: 13.0, lon: 75.2 }, { lat: 13.5, lon: 75.0 }, { lat: 14.0, lon: 74.8 },
-    { lat: 14.5, lon: 74.5 }, { lat: 15.0, lon: 74.2 }, { lat: 15.5, lon: 74.0 },
-    { lat: 16.0, lon: 73.8 }, { lat: 16.5, lon: 73.7 }, { lat: 17.0, lon: 73.6 },
-  ];
-  let idx = 0;
-  for (const point of ghatsPath) {
-    for (let dlat = -0.2; dlat <= 0.2; dlat += 0.1) {
-      for (let dlon = -0.2; dlon <= 0.2; dlon += 0.1) {
-        const lat = point.lat + dlat;
-        const lon = point.lon + dlon;
-        cells.push({
-          id: `${lat.toFixed(1)}_${lon.toFixed(1)}`,
-          bounds: [[lat, lon], [lat + 0.1, lon + 0.1]],
-          speciesCount: Math.floor(Math.random() * 35) + 1,
-          selected: Math.random() > 0.92,
-        });
-        idx++;
-      }
-    }
-  }
-  return cells;
 }

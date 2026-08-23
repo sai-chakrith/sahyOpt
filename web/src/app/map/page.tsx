@@ -33,7 +33,7 @@ export default function MapPage() {
         if (res.ok) {
           const data = await res.json();
           const mapped = data.map((c: any) => ({
-            id: c.id,
+            id: c.cellId || c.id,
             bounds: [
               [c.cellLat, c.cellLon],
               [c.cellLat + 0.1, c.cellLon + 0.1],

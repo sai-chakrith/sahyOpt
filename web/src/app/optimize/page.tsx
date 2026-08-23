@@ -2,7 +2,6 @@
 import React, { useState } from 'react';
 import ModelToggle from '@/components/ModelToggle';
 import BudgetSlider from '@/components/BudgetSlider';
-import IUCNBadge from '@/components/IUCNBadge';
 import LoadingSpinner from '@/components/LoadingSpinner';
 import CoverageChart from '@/components/CoverageChart';
 
@@ -61,17 +60,7 @@ export default function OptimizePage() {
       }
     } catch (err: any) {
       setError(err.message || 'Failed to run optimization. Is the solver running?');
-      // Fall back to mock data for demo
-      setResult({
-        model,
-        totalSelected: model === 'mclp' ? Math.min(budget, 57) : 57,
-        coveragePercent: model === 'mclp' ? Math.min(100, Math.round((budget / 57) * 100)) : 100,
-        solveTimeMs: 1200,
-        selectedCells: [],
-        coveredSpecies: Array(model === 'mclp' ? Math.round(220 * Math.min(1, budget / 57)) : 220).fill('').map((_, i) => `Species ${i + 1}`),
-        uncoveredSpecies: model === 'mclp' ? Array(Math.max(0, 220 - Math.round(220 * Math.min(1, budget / 57)))).fill('').map((_, i) => `Species ${220 - i}`) : [],
-        cellDetails: [],
-      });
+      setResult(null);
     } finally {
       setLoading(false);
     }
@@ -117,7 +106,7 @@ export default function OptimizePage() {
 
           {error && (
             <div style={{ marginTop: '1rem', padding: '0.75rem 1rem', background: 'rgba(229, 83, 75, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(229, 83, 75, 0.3)', fontSize: '0.85rem', color: 'var(--accent-red)' }}>
-              ⚠️ {error} — showing estimated results
+              ⚠️ {error}
             </div>
           )}
         </div>

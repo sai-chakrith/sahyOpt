@@ -1,12 +1,17 @@
+import os
+import pandas as pd
 import pytest
 import optimize
 
 def test_load_data():
     cells, species, a, weights = optimize.load_data()
-    assert len(cells) == 760
-    assert len(species) == 219
-    assert len(a) == 760
-    assert len(weights) == 219
+    cov_path = os.path.join(optimize.DATA_DIR, 'coverage_matrix.csv')
+    cov_df = pd.read_csv(cov_path, index_col=0)
+    
+    assert len(cells) == len(cov_df.index)
+    assert len(species) == len(cov_df.columns)
+    assert len(a) == len(cells)
+    assert len(weights) == len(species)
 
 def test_solve_set_covering():
     cells, species, a, weights = optimize.load_data()

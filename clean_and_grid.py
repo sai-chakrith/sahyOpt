@@ -53,8 +53,8 @@ print(f"Cleaned records: {len(df)}")
 print(f"Cleaned species: {df['species'].nunique()}")
 
 # ---------- BUILD GRID ----------
-df["cell_lat"] = (df["decimalLatitude"] // GRID_SIZE_DEG) * GRID_SIZE_DEG
-df["cell_lon"] = (df["decimalLongitude"] // GRID_SIZE_DEG) * GRID_SIZE_DEG
+df["cell_lat"] = ((df["decimalLatitude"] // GRID_SIZE_DEG) * GRID_SIZE_DEG).round(4)
+df["cell_lon"] = ((df["decimalLongitude"] // GRID_SIZE_DEG) * GRID_SIZE_DEG).round(4)
 df["cell_id"] = df["cell_lat"].astype(str) + "_" + df["cell_lon"].astype(str)
 
 print(f"Occupied grid cells: {df['cell_id'].nunique()}")
@@ -73,8 +73,8 @@ print(f"Species with zero cells after noise filter: "
 
 # ---------- SAVE ----------
 grid_cells = df[["cell_id", "cell_lat", "cell_lon"]].drop_duplicates().reset_index(drop=True)
-grid_cells["centroid_lat"] = grid_cells["cell_lat"] + GRID_SIZE_DEG / 2
-grid_cells["centroid_lon"] = grid_cells["cell_lon"] + GRID_SIZE_DEG / 2
+grid_cells["centroid_lat"] = (grid_cells["cell_lat"] + GRID_SIZE_DEG / 2).round(4)
+grid_cells["centroid_lon"] = (grid_cells["cell_lon"] + GRID_SIZE_DEG / 2).round(4)
 
 grid_cells.to_csv("grid_cells.csv", index=False)
 coverage.to_csv("coverage_matrix.csv")
