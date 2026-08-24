@@ -150,7 +150,8 @@ Open `http://localhost:3000` in your browser.
    - Budget = 57 cells $\rightarrow$ 100.0% species coverage (220 species)
 
 3. **Equal-Weighted vs. IUCN-Weighted Tradeoff**:
-   - At a budget of 20 reserves, incorporating IUCN Red List weights ($w_j$) changes **4 out of 20 selected cells (20.0% network spatial shift)**.
+   - At a budget of 20 reserves, incorporating IUCN Red List weights ($w_j$) changes **7 out of 20 selected cells (35.0% network spatial shift)**.
    - **Equal-weighted model**: achieves 80.0% coverage (176 species).
-   - **IUCN-weighted model**: achieves 77.7% coverage (171 species).
+   - **IUCN-weighted model**: achieves 78.2% coverage (172 species).
    - The weighted model trades a small amount of raw coverage for prioritizing threatened species, ensuring critical habitats are prioritized for endangered endemics such as *Nasikabatrachus sahyadrensis* (Purple Frog) and *Raorchestes resplendens* (Resplendent Bush Frog) over widespread species.
+   - Both models now use a deterministic tie-breaking term (see `optimize.py`), so this comparison reproduces identically across platforms and repeated runs.
