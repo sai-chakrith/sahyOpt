@@ -28,13 +28,31 @@ def load_data(weights_file=None):
     
     return cells, species, a, weights
 
+def _tie_break_terms(cells, x):
+    """
+    Deterministic lexicographic tie-breaking.
+
+    Covering-type IPs frequently have multiple solutions that achieve the
+    exact same optimal objective value (this dataset does -- CBC was
+    landing on different-but-equally-optimal reserve networks depending on
+    platform/solver build). Rather than letting solver internals pick an
+    arbitrary one, we add a tiny perturbation that prefers lower-indexed
+    cells (sorted order) among ties. epsilon is small enough that it can
+    never change which objective value is optimal -- it only selects a
+    canonical solution among ties, so results are reproducible everywhere.
+    """
+    sorted_cells = sorted(cells)
+    rank = {cell: idx for idx, cell in enumerate(sorted_cells)}
+    epsilon = 1e-6 / (len(cells) + 1)
+    return epsilon * lpSum(rank[i] * x[i] for i in cells)
+
 def solve_set_covering(cells, species, a, weights=None):
     start = time.time()
     prob = LpProblem("SetCovering", LpMinimize)
     x = {i: LpVariable(f"x_{i}", cat='Binary') for i in cells}
     
     # Minimize total reserves
-    prob += lpSum(x[i] for i in cells)
+    prob += lpSum(x[i] for i in cells) + _tie_break_terms(cells, x)
     
     # Every species must be covered by at least one selected cell
     for j in species:
@@ -70,7 +88,7 @@ def solve_mclp(cells, species, a, weights, budget):
     y = {j: LpVariable(f"y_{j}", cat='Binary') for j in species}
     
     # Maximize weighted species coverage
-    prob += lpSum(weights[j] * y[j] for j in species)
+    prob += lpSum(weights[j] * y[j] for j in species) - _tie_break_terms(cells, x)
     
     # Species can only be covered if at least one cell covering it is selected
     for j in species:
